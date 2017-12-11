@@ -1,13 +1,18 @@
 // See the following on using objects as key/value dictionaries
 // https://stackoverflow.com/questions/1208222/how-to-do-associative-array-hashing-in-javascript
-var words = {};
 
-/** 
+
+/**
  * Your thoughtful comment here.
  */
 function emptyStack(stack) {
     // ...
-}
+
+    while (stack.length > 0) {
+      stack.pop();
+    }
+    $("#thestack").empty();
+  }
 
 /**
  * Print a string out to the terminal, and update its scroll to the
@@ -20,19 +25,88 @@ function print(terminal, msg) {
     terminal.print(msg);
     $("#terminal").scrollTop($('#terminal')[0].scrollHeight + 40);
 }
-
-/** 
+/**
  * Sync up the HTML with the stack in memory
  * @param {Array[Number]} The stack to render
  */
+var resetButton = $("#reset");
 function renderStack(stack) {
     $("#thestack").empty();
     stack.slice().reverse().forEach(function(element) {
         $("#thestack").append("<tr><td>" + element + "</td></tr>");
     });
+    resetButton.click(function() {
+      emptyStack(stack);
+    });
 };
 
-/** 
+function add(stack) {
+  var first = stack.pop();
+  var second = stack.pop();
+  stack.push(first+second);
+}
+function sub(stack) {
+  var first = stack.pop();
+  var second = stack.pop();
+  stack.push(second-first);
+}
+function mult(stack) {
+  var first = stack.pop();
+  var second = stack.pop();
+  stack.push(first*second);
+}
+function div(stack) {
+  var first = stack.pop();
+  var second = stack.pop();
+  stack.push(second/first);
+}
+function nip(stack) {
+  swap(stack);
+  stack.pop();
+}
+function swap(stack) {
+  var first = stack.pop();
+  var second = stack.pop();
+  stack.push(first);
+  stack.push(second);
+}
+function over(stack) {
+  var first = stack.pop();
+  var second = stack.pop();
+  stack.push(second);
+  stack.push(first);
+  stack.push(second);
+}
+function equalTo(stack) {
+  var first = stack.pop();
+  var second = stack.pop();
+  if(first==second) {
+    stack.push(-1);
+  } else {
+    stack.push(0);
+  }
+}
+function greaterThan(stack) {
+  var first = stack.pop();
+  var second = stack.pop();
+  if(second>first) {
+    stack.push(-1);
+  } else {
+    stack.push(0);
+  }
+}
+function smallerThan(stack) {
+  var first = stack.pop();
+  var second = stack.pop();
+  if(second<first) {
+    stack.push(-1);
+  } else {
+    stack.push(0);
+  }
+}
+
+var words = { "+":add, "-":sub, "*":mult, "/":div, "nip":nip, "swap":swap, "over":over, "=":equalTo, ">":greaterThan, "<":smallerThan };
+/**
  * Process a user input, update the stack accordingly, write a
  * response out to some terminal.
  * @param {Array[Number]} stack - The stack to work on
@@ -40,19 +114,20 @@ function renderStack(stack) {
  * @param {Terminal} terminal - The terminal object
  */
 function process(stack, input, terminal) {
-    // The user typed a number
-    if (!(isNaN(Number(input)))) {
-        print(terminal,"pushing " + Number(input));
-        stack.push(Number(input));
-    } else if (input === ".s") {
+  var inputList = input.trim().split(/ +/);
+  inputList.forEach(function(token) {
+    if (!(isNaN(Number(token)))) {
+        print(terminal,"pushing " + Number(token));
+        stack.push(Number(token));
+    } else if (token === ".s") {
         print(terminal, " <" + stack.length + "> " + stack.slice().join(" "));
-    } else if (input === "+") {
-        var first = stack.pop();
-        var second = stack.pop();
-        stack.push(first+second);
+    } else if (token in words) {
+      words[token](stack);
     } else {
         print(terminal, ":-( Unrecognized input");
     }
+  });
+    // The user typed a number
     renderStack(stack);
 };
 
@@ -64,13 +139,15 @@ function runRepl(terminal, stack) {
     });
 };
 
-// Whenever the page is finished loading, call this function. 
+
+
+// Whenever the page is finished loading, call this function.
 // See: https://learn.jquery.com/using-jquery-core/document-ready/
 $(document).ready(function() {
     var terminal = new Terminal();
     terminal.setHeight("400px");
     terminal.blinkingCursor(true);
-    
+
     // Find the "terminal" object and change it to add the HTML that
     // represents the terminal to the end of it.
     $("#terminal").append(terminal.html);
@@ -79,6 +156,5 @@ $(document).ready(function() {
 
     print(terminal, "Welcome to HaverForth! v0.1");
     print(terminal, "As you type, the stack (on the right) will be kept in sync");
-
     runRepl(terminal, stack);
 });

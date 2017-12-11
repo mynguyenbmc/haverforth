@@ -6,8 +6,6 @@
  * Your thoughtful comment here.
  */
 function emptyStack(stack) {
-    // ...
-
     while (stack.length > 0) {
       stack.pop();
     }
@@ -127,7 +125,6 @@ function process(stack, input, terminal) {
         print(terminal, ":-( Unrecognized input");
     }
   });
-    // The user typed a number
     renderStack(stack);
 };
 

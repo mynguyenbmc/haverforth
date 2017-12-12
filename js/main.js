@@ -1,15 +1,17 @@
-// See the following on using objects as key/value dictionaries
-// https://stackoverflow.com/questions/1208222/how-to-do-associative-array-hashing-in-javascript
-
-
 /**
- * Your thoughtful comment here.
+ * I originally did this lab in Racket, so Javascript is very different. Syntax aside, Racket is functional and I worked with unmutated data and unchanging states, while Javascript
+ allows OOP, passes objects by reference and directly mutates them, which to me makes things easier to deal with but also easier to break if you're not careful and inaccurately mutate the stack.
+ The Stack ADT here is an array, as opposed to a struct with list of elements and size in previous labs.
+ * I did this in Racket which lacked types like Javascript, so it didn't make much of a difference.
+ * Luckily Javascript's lack of types hasn't hurt me so far, again because I'm quite used to Racket. To be honest, I find dynamic typing easier to work with at least while coding, because I can focus more
+ on the algorithms and structures without worrying about type checking. But it can also lead to big problems if I'm not careful and forget what exactly I'm dealing with; this has happened to me many times in Racket.
+ Perhaps for work I'd prefer static typed languages like C++ or Java to be safe, but personally I find dynamic typed ones more fun.
+ * Objects: In Racket I worked with struct, list,...while in Javascript almost everything is an object and we can add properties, functions,..to it easily.
+ * Map: In Racket I used a HashTable ADT, while in Javascript I just use an object with associative key/value hashing as its properties. It's very convenient.
+ * Closures: I love how easy closure is in Javascript. In C++ the syntax is quite annoying, and in Racket I mostly use lambda wrapping (not sure if this is an understable term), but Javascript closure is so concise and nice.
+ * Javascript debugger shows all the variables (local and global) as we step in/over it, making it very easy to see what's going on with the program as a whole and each varible individually.
  */
-
 /**
- * Print a string out to the terminal, and update its scroll to the
- * bottom of the screen. You should call this so the screen is
- * properly scrolled.
  * @param {Terminal} terminal - The `terminal` object to write to
  * @param {string}   msg      - The message to print to the terminal
  */
@@ -109,7 +111,6 @@ var words = { "+":add, "-":sub, "*":mult, "/":div, "nip":nip, "swap":swap, "over
  */
 function process(stack, input, terminal) {
   var inputList = input.trim().split(/ +/);
-  print(terminal,"array length is " + inputList.length );
   for(var i = 0; i < inputList.length; i++) {
     var token = inputList[i];
     if (!(isNaN(Number(token)))) {
@@ -118,9 +119,10 @@ function process(stack, input, terminal) {
     } else if (token === ".s") {
       print(terminal, " <" + stack.length + "> " + stack.slice().join(" "));
     } else if (token === ":") {
+      // this allows for both func defs and calls within one line, e.g 2 3 : dbl 2 * ; dbl
       var word = inputList[++i];
       var stringDef = "";
-      for(++i; i < inputList.length && inputList[i]!= ";"; i++) {
+      for(++i; i < inputList.length && inputList[i]!= ";"; i++) { //gather everything until ;
         stringDef += " " + inputList[i];
       }
       words[word] = function(aStack) { process(aStack, stringDef, terminal);};
@@ -142,15 +144,11 @@ function runRepl(terminal, stack) {
     });
 };
 
-// Whenever the page is finished loading, call this function.
-// See: https://learn.jquery.com/using-jquery-core/document-ready/
 $(document).ready(function() {
     var terminal = new Terminal();
     terminal.setHeight("400px");
     terminal.blinkingCursor(true);
 
-    // Find the "terminal" object and change it to add the HTML that
-    // represents the terminal to the end of it.
     $("#terminal").append(terminal.html);
 
     var stack = [];

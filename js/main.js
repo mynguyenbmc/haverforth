@@ -119,12 +119,10 @@ function process(stack, input, terminal) {
       print(terminal, " <" + stack.length + "> " + stack.slice().join(" "));
     } else if (token === ":") {
       var word = inputList[++i];
-      print(terminal,word);
       var stringDef = "";
       for(++i; i < inputList.length && inputList[i]!= ";"; i++) {
         stringDef += " " + inputList[i];
       }
-      print(terminal, stringDef);
       words[word] = function(aStack) { process(aStack, stringDef, terminal);};
     }
      else if (token in words) {
@@ -143,8 +141,6 @@ function runRepl(terminal, stack) {
         runRepl(terminal, stack);
     });
 };
-
-
 
 // Whenever the page is finished loading, call this function.
 // See: https://learn.jquery.com/using-jquery-core/document-ready/

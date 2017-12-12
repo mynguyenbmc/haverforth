@@ -5,12 +5,6 @@
 /**
  * Your thoughtful comment here.
  */
-function emptyStack(stack) {
-    while (stack.length > 0) {
-      stack.pop();
-    }
-    $("#thestack").empty();
-  }
 
 /**
  * Print a string out to the terminal, and update its scroll to the
@@ -33,8 +27,10 @@ function renderStack(stack) {
     stack.slice().reverse().forEach(function(element) {
         $("#thestack").append("<tr><td>" + element + "</td></tr>");
     });
-    resetButton.click(function() {
-      emptyStack(stack);
+    resetButton.click(function(stack) {
+      while (stack.length > 0) {
+        stack.pop();
+      }
     });
 };
 
@@ -113,18 +109,30 @@ var words = { "+":add, "-":sub, "*":mult, "/":div, "nip":nip, "swap":swap, "over
  */
 function process(stack, input, terminal) {
   var inputList = input.trim().split(/ +/);
-  inputList.forEach(function(token) {
+  print(terminal,"array length is " + inputList.length );
+  for(var i = 0; i < inputList.length; i++) {
+    var token = inputList[i];
     if (!(isNaN(Number(token)))) {
-        print(terminal,"pushing " + Number(token));
-        stack.push(Number(token));
+      print(terminal,"pushing " + Number(token));
+      stack.push(Number(token));
     } else if (token === ".s") {
-        print(terminal, " <" + stack.length + "> " + stack.slice().join(" "));
-    } else if (token in words) {
+      print(terminal, " <" + stack.length + "> " + stack.slice().join(" "));
+    } else if (token === ":") {
+      var word = inputList[++i];
+      print(terminal,word);
+      var stringDef = "";
+      for(++i; i < inputList.length && inputList[i]!= ";"; i++) {
+        stringDef += " " + inputList[i];
+      }
+      print(terminal, stringDef);
+      words[word] = function(aStack) { process(aStack, stringDef, terminal);};
+    }
+     else if (token in words) {
       words[token](stack);
     } else {
         print(terminal, ":-( Unrecognized input");
     }
-  });
+  }
     renderStack(stack);
 };
 
